@@ -1,0 +1,18 @@
+{% load static %}
+
+<head>
+    <link rel="stylesheet" href="https://cdn.acwing.com/static/jquery-ui-dist/jquery-ui.min.css">
+    <script src="https://cdn.acwing.com/static/jquery/js/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/game.css' %}">
+</head>
+<body style="margin:0">
+    <div id="luna_123"></div>
+    <script type="module">
+        import {Luna} from "{% static 'js/dist/game.js' %}";
+        $(document).ready(function(){
+            let luna = new Luna("luna_123");
+        });
+    </script>
+    <!--Django提供{%%}能快速定位项目文件夹，再由相对路径找到文件-->
+    <!--jquery提供$()，document代表html的所有元素，调用对象方法ready，页面加载时构造luna对象-->
+</body>

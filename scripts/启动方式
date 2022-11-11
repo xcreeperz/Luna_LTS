@@ -1,0 +1,2 @@
+运行 start_redis.sh
+再在2个tmux窗口中分别运行 run.sh wss.sh
