@@ -14,7 +14,7 @@ class LunaMenu{
                 </div>
                 <br>
                 <div class = "luna-menu-field-item luna-menu-field-item-settings">
-                    设置
+                    退出(测试)
                 </div>
             </div>
         </div>

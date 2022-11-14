@@ -35,6 +35,7 @@ class Settings{
                     注册
                 </div>
                 <br>
+                <br>
                 <div class = "luna-settings-acwing">
                     <img width = "30" src = "https://app2810.acapp.acwing.com.cn/static/image/settings/acwing.png">
                     <br>
@@ -72,6 +73,7 @@ class Settings{
                 <div class = "luna-settings-option">
                     登录
                 </div>
+                <br>
                 <br>
                 <div class = "luna-settings-acwing">
                     <img width = "30" src = "https://app2810.acapp.acwing.com.cn/static/image/settings/acwing.png">

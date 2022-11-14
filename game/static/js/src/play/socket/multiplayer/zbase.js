@@ -27,7 +27,7 @@ class MultiPlayerSocket{
             }else if(event === "blink"){
                 outer.receive_blink(uuid, data.tx, data.ty);
             }else if(event === "message"){
-                outer.receive_message(data.username, data.message);
+                outer.receive_message(data.username, data.text);
             }
         }
     }
@@ -148,6 +148,7 @@ class MultiPlayerSocket{
         }))
     }
     receive_message(username, text){
+        // console.log(username, text);
         this.play.cf.add_message(username, text);
     }
 }

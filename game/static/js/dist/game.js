@@ -14,7 +14,7 @@ class LunaMenu{
                 </div>
                 <br>
                 <div class = "luna-menu-field-item luna-menu-field-item-settings">
-                    设置
+                    退出(测试)
                 </div>
             </div>
         </div>
@@ -326,7 +326,7 @@ class ChatField{
         if(type !== "bot"){
             this.img = new Image();
             this.img.src = photo;
-            // this.username = username;
+            this.username = username;
         }
 
         if(this.type === "me"){
@@ -548,7 +548,7 @@ class ChatField{
 
     update_move(){
         //人机出生3s后开始攻击
-        if(this.type === "bot" && this.spent_time > 3 && Math.random() < 1 / 200.0){
+        if(this.type === "bot" && this.spent_time > 3 && Math.random() < 1 / 300.0){
             let player = this.play.players[Math.floor(this.play.players.length * Math.random())];   //指定一个目标
             if(player.alive && this.get_dist(this.x, this.y, player.x, player.y) > this.eps){
                 let tx = player.x + player.vx * 0.5;    //预判位置
@@ -649,6 +649,7 @@ class ChatField{
     on_destroy(){
         if(this.type === "me"){
             this.play.state = "over";
+            this.play.notice_board.write("Game Over");
         }
         let players = this.play.players;
         for(let i = 0; i < players.length; i++){
@@ -656,6 +657,9 @@ class ChatField{
                 players.splice(i, 1);
                 break;
             }
+        }
+        if(this.play.players.length <= 1 && this.play.state === "fighting"){
+            this.play.notice_board.write("游戏结束, 胜者是: " + this.username);
         }
     }
 }
@@ -882,7 +886,7 @@ class MultiPlayerSocket{
             }else if(event === "blink"){
                 outer.receive_blink(uuid, data.tx, data.ty);
             }else if(event === "message"){
-                outer.receive_message(data.username, data.message);
+                outer.receive_message(data.username, data.text);
             }
         }
     }
@@ -1003,6 +1007,7 @@ class MultiPlayerSocket{
         }))
     }
     receive_message(username, text){
+        // console.log(username, text);
         this.play.cf.add_message(username, text);
     }
 }class LunaPlay{
@@ -1115,6 +1120,7 @@ class MultiPlayerSocket{
                     注册
                 </div>
                 <br>
+                <br>
                 <div class = "luna-settings-acwing">
                     <img width = "30" src = "https://app2810.acapp.acwing.com.cn/static/image/settings/acwing.png">
                     <br>
@@ -1152,6 +1158,7 @@ class MultiPlayerSocket{
                 <div class = "luna-settings-option">
                     登录
                 </div>
+                <br>
                 <br>
                 <div class = "luna-settings-acwing">
                     <img width = "30" src = "https://app2810.acapp.acwing.com.cn/static/image/settings/acwing.png">

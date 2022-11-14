@@ -30,7 +30,7 @@ class Player extends GameObj{
         if(type !== "bot"){
             this.img = new Image();
             this.img.src = photo;
-            // this.username = username;
+            this.username = username;
         }
 
         if(this.type === "me"){
@@ -252,7 +252,7 @@ class Player extends GameObj{
 
     update_move(){
         //人机出生3s后开始攻击
-        if(this.type === "bot" && this.spent_time > 3 && Math.random() < 1 / 200.0){
+        if(this.type === "bot" && this.spent_time > 3 && Math.random() < 1 / 300.0){
             let player = this.play.players[Math.floor(this.play.players.length * Math.random())];   //指定一个目标
             if(player.alive && this.get_dist(this.x, this.y, player.x, player.y) > this.eps){
                 let tx = player.x + player.vx * 0.5;    //预判位置
@@ -353,6 +353,7 @@ class Player extends GameObj{
     on_destroy(){
         if(this.type === "me"){
             this.play.state = "over";
+            this.play.notice_board.write("Game Over");
         }
         let players = this.play.players;
         for(let i = 0; i < players.length; i++){
@@ -360,6 +361,9 @@ class Player extends GameObj{
                 players.splice(i, 1);
                 break;
             }
+        }
+        if(this.play.players.length <= 1 && this.play.state === "fighting"){
+            this.play.notice_board.write("游戏结束, 胜者是: " + this.username);
         }
     }
 }

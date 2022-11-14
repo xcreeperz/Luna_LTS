@@ -1,7 +1,7 @@
 .luna-menu{
     width: 100%;
     height: 100%;
-    background-image: url("/static/image/menu/background.gif");
+    background-image: url("/static/image/menu/ATRI3.png");
     background-size: 100% 100%;
     user-select: none;
 }
@@ -49,7 +49,7 @@
 .luna-settings{
     width: 100%;
     height: 100%;
-    background-image: url("/static/image/menu/background.gif");
+    background-image: url("/static/image/menu/ATRI3.png");
     background-size: 100% 100%;
     user-select: none;
 }
@@ -129,7 +129,7 @@
 .luna-settings-error-message{
     color: red;
     display: inline;
-    font-size: 1vh;
+    font-size: 1.6vh;
     float: left;
     padding-left: 1vw;
 }
