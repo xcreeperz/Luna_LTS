@@ -53,6 +53,8 @@ class LunaMenu{
 
         this.$settings.click(function(){
             //console.log("设置");
+            // outer.root.settings.show_menu();
+            
             outer.root.settings.logout_on_remote();
         });
     }
@@ -64,7 +66,8 @@ class LunaMenu{
     hide(){
         this.$menu.hide();
     }
-}let GAME_OBJ = [];
+}
+let GAME_OBJ = [];
 
 class GameObj{
     constructor(){
@@ -295,7 +298,7 @@ class ChatField{
         this.ctx.fill();
     }
 }class Player extends GameObj{
-    constructor(play, x, y, radius, color, speed, type, username, photo){
+    constructor(play, x, y, radius, color, speed, type, username, photo/*, skills*/){
         super();
         this.play = play;
         this.x = x;
@@ -303,6 +306,7 @@ class ChatField{
         this.vx = 0;
         this.vy = 0;
         this.move_length = 0;
+        this.basic_speed = speed;
         this.speed = speed;
 
         this.damage_vx = 0;
@@ -321,7 +325,18 @@ class ChatField{
         this.spent_time = 0;
         this.alive = true;
 
+        this.level = 1;
+
         this.fireballs = [];
+        this.iceballs = [];
+
+        this.burn_time = 0;
+        this.is_burnt = false;
+        this.damage_dot = 0;
+        this.slow_time = 0;
+        this.is_slowed = false;
+        this.fast_time = 0;
+        this.is_fasten = false;
 
         if(type !== "bot"){
             this.img = new Image();
@@ -337,6 +352,11 @@ class ChatField{
             this.blink_coldtime = 1;
             this.blink_img = new Image();
             this.blink_img.src = "https://cdn.acwing.com/media/article/image/2021/12/02/1_daccabdc53-blink.png";
+
+            //目前暂未确定技能保存方式
+            // this.skills = skills;
+            // this.skills.push("fireball");
+            // this.skills.push("iceball");
         }
         //this.start();
     }
@@ -389,14 +409,14 @@ class ChatField{
                     if(outer.play.mode === "multi mode"){
                         outer.play.mps.send_shoot_fireball(tx, ty, fireball.uuid);
                     }
-                }else if(outer.cur_skill === "iceball"){
-                    if(outer.iceball_coldtime > outer.eps) return false;
-                    outer.shoot_iceball();
-                    if(outer.play.mode === "multi mode"){
-                        outer.send_shoot_iceball();
-                    }
-                    outer.cur_skill = null;
-                    //待补充
+                // }else if(outer.cur_skill === "iceball"){
+                //     if(outer.iceball_coldtime > outer.eps) return false;
+                //     outer.shoot_iceball();
+                //     if(outer.play.mode === "multi mode"){
+                //         outer.send_shoot_iceball();
+                //     }
+                //     outer.cur_skill = null;
+                //     //待补充
 
                 }else if(outer.cur_skill === "blink"){
                     if(outer.blink_coldtime > outer.eps) return false;
@@ -433,10 +453,10 @@ class ChatField{
                 outer.cur_skill = "blink";
                 return false;
             //E冰球
-            }else if(e.which === 69){
-                if(outer.iceball_coldtime > outer.eps) return true;
-                outer.cur_skill = "iceball";
-                return false;
+            // }else if(e.which === 69){
+            //     if(outer.iceball_coldtime > outer.eps) return true;
+            //     outer.cur_skill = "iceball";
+            //     return false;
             }
         });
     }
@@ -466,6 +486,76 @@ class ChatField{
         this.damage_vx = Math.cos(angle);
         this.damage_vy = Math.sin(angle);
         this.damage_speed = damage * 100;
+    }
+
+    //附加特效的攻击(alpha)
+    is_attacked_plus(attack_type, angle, damage){
+        //模拟血量
+        this.radius -= (damage / 2);
+        //受击粒子特效，随机数量/大小/角度/距离,速度与主体有关且递减
+        for(let i = 0; i < 15 + Math.floor(Math.random() * 6); i++){
+            let x = this.x, y = this.y;
+            let radius = this.radius * Math.random() * 0.12;
+            let angle = Math.PI * 2 * Math.random();
+            let vx = Math.cos(angle), vy = Math.sin(angle);
+            let color = this.color;
+            let speed = this.speed * 10;
+            let move_length = this.radius * Math.random() * 7;
+            new Particle(this.play, x, y, radius, vx, vy, color, speed, move_length);
+        }
+        //死亡判定
+        if(this.radius < this.eps){
+            this.alive = false;
+            this.destroy();
+            return false;
+        }
+        if(attack_type === "fireball"){
+            this.burn_time = 2;
+            this.is_burnt = true;
+            this.damage_dot = damage / 400;
+        }else if(attack_type === "iceball"){
+            this.slow_time = 3;
+            this.is_slowed = true;
+        }
+        //被击退的冲击信息
+        this.damage_vx = Math.cos(angle);
+        this.damage_vy = Math.sin(angle);
+        this.damage_speed = damage * 100;
+    }
+
+    //持续火伤, 在本地计算
+    update_burnt(){
+        this.burn_time -= this.timedelta / 1000; //时间按s流逝
+        this.radius -= this.damage_dot;
+        if(this.radius < this.eps){
+            this.alive = false;
+            this.destroy();
+            return false;
+        }
+        if(this.burn_time <= 0){
+            this.is_burnt = false;
+        }
+    }
+
+    //加速和减速效果, 在本地计算
+    update_speed(){
+        if(this.slow_time > 0){
+            this.slow_time -= this.timedelta / 1000;
+            if(this.speed === this.basic_speed){
+                this.speed *= 0.7;
+            }
+            if(this.slow_time <= 0){
+                this.is_slowed = false;
+            }
+        }else if(this.fast_time > 0){
+            this.fast_time -= this.timedelta / 1000;
+            if(this.speed === this.basic_speed){
+                this.speed *= 1.4;
+            }
+            if(this.fast_time <= 0){
+                this.is_fasten = false;
+            }
+        }
     }
 
     //联机收到攻击者发来的受击同步信息，再在本地重新处理
@@ -533,6 +623,8 @@ class ChatField{
         if(this.type === "me" && this.play.state === "fighting"){
             this.update_coldtime();
         }
+        if(this.is_burnt) this.update_burnt(this.damage_dot);
+        if(this.is_slowed || this.is_fasten) this.update_speed();
         this.update_move();
         this.render();
     }
@@ -659,12 +751,16 @@ class ChatField{
             }
         }
         if(this.play.players.length <= 1 && this.play.state === "fighting"){
-            this.play.notice_board.write("游戏结束, 胜者是: " + this.username);
+            if(this.play.mode === "single mode"){
+                this.play.notice_board.write("游戏结束, 胜者是: You");
+            }else if(this.play.mode === "multi mode"){
+                this.play.notice_board.write("游戏结束, 胜者是: " + this.username);
+            }
         }
     }
 }
 class FireBall extends GameObj{
-    constructor(play, player, x, y, radius, color, vx, vy, speed, move_length, damage){
+    constructor(play, player, x, y, radius, color, vx, vy, speed, move_length, damage/*, burn*/){
         super();
         this.play = play;
         this.player = player;
@@ -679,6 +775,7 @@ class FireBall extends GameObj{
         this.radius = radius;
         this.color = color;
         this.damage = damage;
+        // this.burn = burn;
 
         this.ctx = this.play.game_map.ctx;
         this.eps = 0.01;
@@ -690,7 +787,7 @@ class FireBall extends GameObj{
 
     attack(player){
         let angle = Math.atan2(player.y - this.y, player.x - this.x);
-        player.is_attacked(angle, this.damage);
+        player.is_attacked_plus("fireball", angle, this.damage);
         if(this.play.mode === "multi mode"){
             this.play.mps.send_attack(player.uuid, player.x, player.y, angle, this.damage, this.uuid);
         }
@@ -786,7 +883,7 @@ class FireBall extends GameObj{
 
     attack(player){
         let angle = Math.atan2(player.y - this.y, player.x - this.x);
-        player.is_attacked(angle, this.damage, this.slow);
+        player.is_attacked("iceball", angle, this.damage);
         if(this.play.mode === "multi mode"){
             this.play.mps.send_attack(player.uuid, player.x, player.y, angle, this.damage, this.uuid);
             this.play.mps.send_slow(player.uuid, this.slow, this.uuid);
@@ -857,7 +954,14 @@ class FireBall extends GameObj{
         }
     }
 }
-class MultiPlayerSocket{
+class Skills{
+    constructor(play, player){
+        this.play = play;
+        this.player = player;
+        this.skill_list = [];
+    }
+
+}class MultiPlayerSocket{
     constructor(play){
         this.play = play;
         //连接到后端wss类(通过as_asgi函数)

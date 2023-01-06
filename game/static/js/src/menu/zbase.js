@@ -53,6 +53,8 @@ class LunaMenu{
 
         this.$settings.click(function(){
             //console.log("设置");
+            // outer.root.settings.show_menu();
+            
             outer.root.settings.logout_on_remote();
         });
     }

@@ -25,7 +25,7 @@ class IceBall extends GameObj{
 
     attack(player){
         let angle = Math.atan2(player.y - this.y, player.x - this.x);
-        player.is_attacked(angle, this.damage, this.slow);
+        player.is_attacked("iceball", angle, this.damage);
         if(this.play.mode === "multi mode"){
             this.play.mps.send_attack(player.uuid, player.x, player.y, angle, this.damage, this.uuid);
             this.play.mps.send_slow(player.uuid, this.slow, this.uuid);

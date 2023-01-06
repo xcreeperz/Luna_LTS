@@ -1,5 +1,5 @@
 class FireBall extends GameObj{
-    constructor(play, player, x, y, radius, color, vx, vy, speed, move_length, damage){
+    constructor(play, player, x, y, radius, color, vx, vy, speed, move_length, damage/*, burn*/){
         super();
         this.play = play;
         this.player = player;
@@ -14,6 +14,7 @@ class FireBall extends GameObj{
         this.radius = radius;
         this.color = color;
         this.damage = damage;
+        // this.burn = burn;
 
         this.ctx = this.play.game_map.ctx;
         this.eps = 0.01;
@@ -25,7 +26,7 @@ class FireBall extends GameObj{
 
     attack(player){
         let angle = Math.atan2(player.y - this.y, player.x - this.x);
-        player.is_attacked(angle, this.damage);
+        player.is_attacked_plus("fireball", angle, this.damage);
         if(this.play.mode === "multi mode"){
             this.play.mps.send_attack(player.uuid, player.x, player.y, angle, this.damage, this.uuid);
         }
